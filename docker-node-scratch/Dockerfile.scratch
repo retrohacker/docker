@@ -1,0 +1,5 @@
+FROM scratch
+
+COPY ./output/ /
+
+ENTRYPOINT ["./bootstrap", "/lib", "/usr", "--", "/node"]

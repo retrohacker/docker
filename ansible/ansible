@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Get CWD
+
+CWD=$PWD
+
+# Get Script Directory
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+BUILD_CACHE="$DIR/.rebuild"
+CACHE_FILES="$DIR/Dockerfile"
+
+if diff "${BUILD_CACHE}" <(stat -c "%Y" "${CACHE_FILES}" | tee "${BUILD_CACHE}") 1>/dev/null 2>/dev/null; then
+  :
+else
+  docker build -t 'ansible' "$DIR" || {
+    rm "${BUILD_CACHE}";
+    exit 1;
+  }
+fi
+
+mkdir -p "${HOME}/.ansible-roles"
+
+docker run \
+  -it \
+  --net=host \
+  --env-file <(env | grep -iv 'PATH=') \
+  -v "${CWD}:/usr/src/app" \
+  -v "${HOME}/.ssh:/root/.ssh" \
+  -v "${HOME}/.ansible-roles:/usr/src/ansible/roles" \
+  ansible "$@"

@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Get Working Directory
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+cd "${DIR}"
+
+help() {
+cat << EOL
+Quickly edit any of the dockerized applications on this system.
+This will drop you into vim in the working directory of the dockerized scripts.
+
+usage: e APP
+
+  APP - Any of the available apps
+
+Available Apps:
+$(ls | grep -v '^e$' | sed 's/^/  * /g')
+EOL
+}
+
+if [ -z "${1}" ]; then
+  help;
+  exit 1;
+fi
+
+if [ "${1}" == "--help" -o "${1}" == "-h" ]; then
+  help;
+  exit 0;
+fi
+
+# Get directory of target
+SOURCE="./${1}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  TARGET="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$TARGET/$SOURCE"
+done
+TARGET="$( cd -P "$( dirname "$SOURCE" )" && pwd )/${1}"
+
+[ -f "${TARGET}" ] || {
+  help;
+  exit 1;
+}
+
+cd "$(dirname "${TARGET}")"
+vim "${TARGET}"

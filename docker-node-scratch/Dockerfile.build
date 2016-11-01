@@ -1,0 +1,12 @@
+FROM node:4
+
+ADD ./bootstrap.c .
+RUN mkdir -p /output
+RUN gcc -static -o /output/bootstrap -Os bootstrap.c
+RUN cp $(which node) /output/
+
+RUN ldd /output/node | grep '=>' | awk '{print $3}' | xargs -L1 dirname | xargs -L1 -I{} mkdir -p /output/{} \
+ && ldd /output/node | grep '=>' | awk '{print $3}' | xargs -I{} cp {} /output{} \
+ && mkdir -p /output/sbin \
+ && cp /sbin/ldconfig.real /output/sbin/ldconfig \
+ && cp /lib/x86_64-linux-gnu/ld-2.19.so /output/lib/x86_64-linux-gnu/ld-2.19.so
