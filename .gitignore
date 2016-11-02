@@ -1,2 +1,4 @@
-aws
 .rebuild
+./aws
+!aws/aws
+!aws/dockerfile
