@@ -28,10 +28,19 @@ else
   }
 fi
 
+if [ -z "${AWS_USER}" ]; then
+  echo -e "\033[33mUsing default AWS_USER: retrohacker\033[37m"
+  AWS_USER=retrohacker
+fi
+
+mkdir -p "${CWD}/kube"
+
 docker run \
   -it \
   --net=host \
-  --env-file <(env | grep -iv 'PATH=') \
+  --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
+  -v "${DIR}/../aws/${AWS_USER}:/root/.aws" \
   -v "${CWD}:/usr/src/app" \
   -v "${HOME}/.ssh:/root/.ssh" \
+  -v "${CWD}/kube:/root/.kube" \
   kops "$@"

@@ -29,14 +29,14 @@ else
   }
 fi
 
-mkdir -p "${HOME}/.ansible-roles"
+mkdir -p "${CWD}/.ansible-roles"
 
 docker run \
   -it \
   --net=host \
   --env-file <(env | grep -iv 'PATH=') \
   -v "${CWD}:/usr/src/app" \
-  -v "${HOME}/.ssh:/root/.ssh" \
-  -v "${HOME}/.ansible-roles:/usr/src/ansible/roles" \
+  -v "${HOME}/.ssh/id_rsa:/root/.ssh/id_rsa" \
+  -v "${CWD}/.ansible-roles:/usr/src/ansible/roles" \
   --entrypoint "ansible-galaxy" \
   ansible-galaxy "$@"

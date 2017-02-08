@@ -28,13 +28,20 @@ else
   }
 fi
 
-mkdir -p "${HOME}/.ansible-roles"
+if [ -z "${AWS_USER}" ]; then
+  echo -e "\033[33mUsing default AWS_USER: retrohacker\033[37m"
+  AWS_USER=retrohacker
+fi
+
+mkdir -p "${CWD}/.ansible-roles"
 
 docker run \
   -it \
   --net=host \
   --env-file <(env | grep -iv 'PATH=') \
+  -e "PYTHONPATH=/usr/src/app/.pip" \
+  -v "${DIR}/../aws/${AWS_USER}:/root/.aws" \
   -v "${CWD}:/usr/src/app" \
-  -v "${HOME}/.ssh:/root/.ssh" \
-  -v "${HOME}/.ansible-roles:/usr/src/ansible/roles" \
+  -v "${HOME}/.ssh/id_rsa:/root/.ssh/id_rsa" \
+  -v "${CWD}/.ansible-roles:/usr/src/ansible/roles" \
   ansible "$@"

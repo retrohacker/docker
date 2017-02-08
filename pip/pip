@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+mkdir -p "${PWD}/.pip"
+
+docker run -it \
+  --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
+  -v "${PWD}:/usr/src/app" \
+  -w "/usr/src/app" \
+  python:2.7 pip install --target /usr/src/app/.pip "$@"

@@ -16,27 +16,24 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-BUILD_CACHE="$DIR/.rebuild"
-CACHE_FILES="$DIR/Dockerfile"
+cd "${DIR}"
 
 if diff "${BUILD_CACHE}" <(stat -c "%Y" "${CACHE_FILES}" | tee "${BUILD_CACHE}") 1>/dev/null 2>/dev/null; then
   :
 else
-  docker build -t 'terraform' "$DIR" || {
+  docker build -t 'testling' "$DIR" || {
     rm "${BUILD_CACHE}";
     exit 1;
   }
 fi
 
-if [ -z "${AWS_USER}" ]; then
-  echo -e "\033[33mUsing default AWS_USER: retrohacker\033[37m"
-  AWS_USER=retrohacker
-fi
+BUILD_CACHE="$DIR/.rebuild"
+CACHE_FILES="$DIR/Dockerfile"
 
-docker run \
-  -it \
-  --env-file <(env | grep -iv 'PATH=' | grep -iv 'AWS_USER=') \
-  -v "${DIR}/../aws/${AWS_USER}:/root/.aws" \
-  -v "${CWD}:/usr/src/app" \
-  -v "${HOME}/.ssh:/root/.ssh" \
-  terraform "$@"
+docker run -it \
+  -v "${CWD}:/usr/src/data" \
+  --workdir /usr/src/data \
+  --net host \
+  --user $UID \
+  --entrypoint npm \
+  mark-adams/xvfb-chromium-js "$@"

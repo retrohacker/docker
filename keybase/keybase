@@ -16,27 +16,28 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
+cd "${DIR}"
+
 BUILD_CACHE="$DIR/.rebuild"
 CACHE_FILES="$DIR/Dockerfile"
 
 if diff "${BUILD_CACHE}" <(stat -c "%Y" "${CACHE_FILES}" | tee "${BUILD_CACHE}") 1>/dev/null 2>/dev/null; then
   :
 else
-  docker build -t 'terraform' "$DIR" || {
+  docker build -t 'keybase' "$DIR" || {
     rm "${BUILD_CACHE}";
     exit 1;
   }
 fi
 
-if [ -z "${AWS_USER}" ]; then
-  echo -e "\033[33mUsing default AWS_USER: retrohacker\033[37m"
-  AWS_USER=retrohacker
+if [ -z "${KEYBASE_USER}" ]; then
+  KEYBASE_USER=retrohacker
 fi
 
-docker run \
-  -it \
-  --env-file <(env | grep -iv 'PATH=' | grep -iv 'AWS_USER=') \
-  -v "${DIR}/../aws/${AWS_USER}:/root/.aws" \
+mkdir -p "${DIR}/${KEYBASE_USER}"
+
+docker run -it \
+  -v "${DIR}/${KEYBASE_USER}:/root" \
+  --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
   -v "${CWD}:/usr/src/app" \
-  -v "${HOME}/.ssh:/root/.ssh" \
-  terraform "$@"
+  keybase "$@"

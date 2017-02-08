@@ -21,11 +21,6 @@ cd "${DIR}"
 BUILD_CACHE="$DIR/.rebuild"
 CACHE_FILES="$DIR/Dockerfile"
 
-if [ -z "${AWS_USER}" ]; then
-  echo -e "\033[33mUsing default AWS_USER: retrohacker\033[37m"
-  AWS_USER=retrohacker
-fi
-
 if diff "${BUILD_CACHE}" <(stat -c "%Y" "${CACHE_FILES}" | tee "${BUILD_CACHE}") 1>/dev/null 2>/dev/null; then
   :
 else
@@ -35,10 +30,9 @@ else
   }
 fi
 
-if diff .rebuild <(stat -c "%Y" Dockerfile | tee .rebuild) 1>/dev/null 2>/dev/null; then
-  :
-else
-  docker build -t 'aws' .
+if [ -z "${AWS_USER}" ]; then
+  echo -e "\033[33mUsing default AWS_USER: retrohacker\033[37m"
+  AWS_USER=retrohacker
 fi
 
 mkdir -p "${DIR}/${AWS_USER}"
