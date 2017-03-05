@@ -23,7 +23,8 @@ if [ -z "${NODE_VERSION}" ]; then
   NODE_VERSION=6
 fi
 
-docker run -it \
+docker run \
+  -it \
   --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
   -v "${CWD}:/usr/src/data" \
   --workdir /usr/src/data \
@@ -31,4 +32,3 @@ docker run -it \
   --user $UID \
   --entrypoint node \
   node:$NODE_VERSION "$@"
-

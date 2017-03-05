@@ -37,10 +37,12 @@ fi
 
 mkdir -p "${DIR}/${STORJ_USER}"
 
-docker run -it \
-  -v "${DIR}/${STORJ_USER}:/root/.storjcli" \
+docker run \
+  -it \
+  -v "${DIR}/${STORJ_USER}:/home/foobar/.storjcli" \
   --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
+  -e HOME=/home/foobar \
   -v "${CWD}:/usr/src/data" \
+  --user $UID \
   --net host \
-  -v "/home/retrohacker/Development/storj/storj-sdk/cli/core-cli/node_modules:/usr/src/app/node_modules" \
   storj "$@"

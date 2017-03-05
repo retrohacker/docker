@@ -30,7 +30,17 @@ else
   }
 fi
 
+if [ -z "${GO_PROJECT}" ]; then
+  echo -e "\033[33mUsing default GO_PROJECT: global\033[37m"
+  GO_PROJECT=global
+  mkdir -p "${DIR}/${GO_PROJECT}"
+fi
+
 docker run -it \
   --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
   -v "${CWD}:/usr/src/app" \
+  -e "GOPATH=/usr/src/gopath" \
+  -v "${DIR}/${GO_PROJECT}:/usr/src/gopath" \
+  --user $UID \
+  --net host \
   go "$@"
