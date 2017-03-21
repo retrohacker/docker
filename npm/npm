@@ -30,8 +30,18 @@ else
   }
 fi
 
+if [ -z "${NPM_USER}" ]; then
+  echo -e "\033[33mUsing default NPM_USER: retrohacker\033[37m"
+  NPM_USER=retrohacker
+fi
+
+mkdir -p "${DIR}/${NPM_USER}"
+
+
 docker run -it \
   --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
+  -e "HOME=/root" \
+  -v "${DIR}/${NPM_USER}:/root" \
   -v "${CWD}:/usr/src/data" \
   --workdir /usr/src/data \
   --net host \
