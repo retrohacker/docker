@@ -9,5 +9,4 @@ docker run -it \
   --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
   --user $UID \
   -v "${CWD}:/usr/src/app" \
-  --workdir /usr/src/data \
   "${IMAGE_NAME}" "$@"
