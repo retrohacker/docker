@@ -34,3 +34,4 @@
 !testling/testling
 !ws/ws
 !template/*
+!lib/lib

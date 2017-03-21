@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+source ../build.sh ${BASH_SOURCE[0]}
+
+docker run -it \
+  --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
+  --user $UID \
+  -v "${CWD}:/usr/src/app" \
+  --workdir /usr/src/data \
+  "${IMAGE_NAME}" "$@"
