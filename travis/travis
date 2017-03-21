@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e
+
+CACHE_FILES="dockerfile .dockerignore"
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+source ../build.sh ${BASH_SOURCE[0]}
+
+if [ -z "${TRAVIS_USER}" ]; then
+  echo -e "\033[33mUsing default TRAVIS_USER: retrohacker\033[37m"
+  TRAVIS_USER=retrohacker
+fi
+
+mkdir -p "${DIR}/${TRAVIS_USER}"
+
+docker run -it \
+  -v "${DIR}/${TRAVIS_USER}:/root/.travis" \
+  --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
+  -v "${CWD}:/usr/src/app" \
+  travis "$@"
