@@ -33,3 +33,4 @@
 !terraform/terraform
 !testling/testling
 !ws/ws
+!template/*
