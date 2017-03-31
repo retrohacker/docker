@@ -1,7 +1,3 @@
-# Get CWD
-
-CWD=${PWD}
-
 # Get Script Directory: resolve $SOURCE until the file is no longer a symlink
 SOURCE="$1"
 while [ -h "${SOURCE}" ]; do
@@ -23,6 +19,7 @@ fi
 
 # Check to see if the Dockerfile needs to be built
 BUILD_CACHE=".rebuild"
+
 if diff "${BUILD_CACHE}" <(ls -alh ${CACHE_FILES} | tee "${BUILD_CACHE}") 1>/dev/null 2>/dev/null; then
   :
 else

@@ -2,6 +2,7 @@
 
 set -e
 
+CWD=${PWD}
 cd "$(dirname "${BASH_SOURCE[0]}")"
 source ../build.sh ${BASH_SOURCE[0]}
 

@@ -2,11 +2,40 @@
 
 set -e
 
+CWD=${PWD}
 cd "$(dirname "${BASH_SOURCE[0]}")"
 source ../build.sh ${BASH_SOURCE[0]}
 
-docker run -it \
+# Determine what folder we should be mounting, and what folder should be our
+# working directory when the container starts
+cd "${CWD}"
+MOUNT="${CWD}"
+WORK_DIR=""
+while [[ ! -a "./.stdlib" ]]
+do
+  # Prepend current directory to current working directory of the container
+  WORKDIR="/$(basename ${PWD})${WORKDIR}"
+  cd ../
+  # Check to see if we cant cd up any higher
+  if [ "${MOUNT}" == "${PWD}" ]
+  then
+    # No parent dir contains what we need, so we will use the current dir for
+    # both the mount point and the working directory (assume least privilage)
+    MOUNT="${CWD}"
+    WORKDIR=""
+    break
+  fi
+  # Check to see if next parent has what we are looking for
+  MOUNT="${PWD}"
+done
+
+docker run \
+  -a stdout \
+  -a stdin \
+  -a stderr \
   --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
   --user $UID \
-  -v "${CWD}:/usr/src/app" \
+  --net host \
+  -v "${MOUNT}:/usr/src/app" \
+  --workdir "/usr/src/app${WORKDIR}" \
   "${IMAGE_NAME}" "$@"
