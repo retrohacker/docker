@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -e
+
+CWD=${PWD}
+cd "$(dirname "${BASH_SOURCE[0]}")"
+source ../build.sh ${BASH_SOURCE[0]}
+
+if [ -z "${GCLOUD_USER}" ]; then
+  echo -e "\033[33mUsing default GCLOUD_USER: retrohacker\033[37m"
+  GCLOUD_USER=retrohacker
+fi
+
+mkdir -p "${DIR}/${GCLOUD_USER}"
+
+docker run \
+  -it \
+  --env-file <(env | grep -iv 'PATH=\|HOME=\|USER=') \
+  -e "HOME=/home/foobar" \
+  --user $UID \
+  -v "${CWD}:/usr/src/data" \
+  -v "${DIR}/${GCLOUD_USER}:/home/foobar/.config" \
+  --workdir /usr/src/data \
+  "${IMAGE_NAME}" "$@"
